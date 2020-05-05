@@ -1,0 +1,54 @@
+import requests
+import json
+import hashlib
+
+requisicao_url = requests.get("https://api.codenation.dev/v1/challenge/dev-ps/generate-data?token=f3b3c06c4d3a7414efa3c932267d096743925cf1")
+arquivo_salva_1 = open("answer.json", "w")
+lib_jason_criptografado = json.loads(requisicao_url.content)
+json.dump(lib_jason_criptografado, arquivo_salva_1)
+arquivo_salva_1.close()
+
+#Descriptografando
+
+texto = lib_jason_criptografado["cifrado"]
+chave = lib_jason_criptografado["numero_casas"]
+CARACTERES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+convertido = ''
+texto = texto.upper()
+
+for caractere in texto:
+
+    if caractere not in CARACTERES:
+        convertido += caractere
+
+    elif caractere in CARACTERES:        
+        num = CARACTERES.find(caractere)
+        num = num - chave
+        convertido += CARACTERES[num] 
+
+#atualizar o arquivo JSON, no campo decifrado
+lib_jason_criptografado["decifrado"] = convertido
+arquivo_atualizacao_1 = open("answer.json", "w")
+json.dump(lib_jason_criptografado, arquivo_atualizacao_1)
+arquivo_atualizacao_1.close()
+
+#gerar um resumo criptográfico do texto decifrado usando o algoritmo sha1
+encodando = lib_jason_criptografado['decifrado'].encode('utf-8')
+criptografando = hashlib.sha1(encodando).hexdigest()
+
+#atualizar novamente o arquivo JSON
+lib_jason_criptografado['resumo_criptografico'] = criptografando
+arquivo_atualizacao_2 = open("answer.json", "w")
+json.dump(lib_jason_criptografado, arquivo_atualizacao_2)
+arquivo_atualizacao_2.close()
+
+#submeter o arquivo atualizado para correção via POST para a API
+
+URL = 'https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=f3b3c06c4d3a7414efa3c932267d096743925cf1'
+data_to_send = {'data' : open('answer.json', 'r')}
+json_send = {'JSON' : open('answer.json', 'r')}
+file_to_send = {'answer' : open('answer.json', 'rb')}
+
+resposta = requests.post(URL, files=file_to_send)
+
+print (resposta)

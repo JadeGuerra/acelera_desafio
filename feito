@@ -12,9 +12,8 @@ arquivo_salva_1.close()
 
 texto = lib_jason_criptografado["cifrado"]
 chave = lib_jason_criptografado["numero_casas"]
-CARACTERES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+CARACTERES = 'abcdefghijklmnopqrstuvwxyz'
 convertido = ''
-texto = texto.upper()
 
 for caractere in texto:
 
